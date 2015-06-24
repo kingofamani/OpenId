@@ -22,9 +22,9 @@ namespace NTPCLibrary
         {
             Url = "http://openid.ntpc.edu.tw";
             
-            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+            //IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
 
-            if (IsAuthenticated)
+            if (GetCookie(OPENID_COOKIE) != string.Empty)
             {
                 User = JsonConvert.DeserializeObject<User>(GetCookie(OPENID_COOKIE));
             }            
@@ -40,9 +40,9 @@ namespace NTPCLibrary
         {
             Url = url;
 
-            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+            //IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
 
-            if (IsAuthenticated)
+            if (GetCookie(OPENID_COOKIE) != string.Empty)
             {
                 User = JsonConvert.DeserializeObject<User>(GetCookie(OPENID_COOKIE));
             }  
@@ -70,7 +70,9 @@ namespace NTPCLibrary
         }
 
         public bool IsAuthenticated
-        { get; set;}
+        {
+            get { return GetCookie(OPENID_COOKIE) != string.Empty; }
+        }
 
         public string LoginUrl
         {

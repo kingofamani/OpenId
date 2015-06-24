@@ -5,12 +5,15 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using NTPCLibrary;
 
-public partial class Sample01 : OpenIdValidPge
+//[NtpcAuthorize]
+//[NtpcAuthorize(Users = "amani,test1234")]
+//[NtpcAuthorize(Roles= "資訊組長")]
+//[Authorize(Schools="014792")] 
+[Authorize(Roles = "資訊組長")] //授權Authorization
+public partial class Sample01 : OpenIdValidPge //認證Authentication
 {
-    protected void Page_Load(object sender, EventArgs e)
-    {
-    }
     protected void btnUserInfo_Click(object sender, EventArgs e)
     {
         Response.Write(JsonConvert.SerializeObject(LoginUser));      

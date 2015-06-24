@@ -48,9 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authorization\AuthorizeAttribute.cs" />
+    <Compile Include="Authorization\AuthorizeCore.cs" />
     <Compile Include="Department.cs" />
     <Compile Include="Gender.cs" />
+    <Compile Include="LoginUtil.cs" />
     <Compile Include="OpenID.cs" />
+    <Compile Include="OpenIdValidPge.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>

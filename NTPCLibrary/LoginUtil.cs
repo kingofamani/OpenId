@@ -17,8 +17,6 @@ public class LoginUtil
 
     public static void Login()
     {
-        Page page = (Page)HttpContext.Current.Handler;
-
         NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
         if (!openId.IsAuthenticated)
         {
