@@ -10,9 +10,6 @@ using System.Web.UI;
 /// </summary>
 public class LoginUtil
 {
-    public static string OPENID_THIS_WEBSITE_COOKIE = "openidThisWebSite";//是否已在本網站登入過
-    public static string OPENID_SELECT_USER_COOKIE = "openidSelectUser";
-
 	public LoginUtil()
 	{
 	}
@@ -26,12 +23,8 @@ public class LoginUtil
         }
         else
         {
-            Util.SetCookie(OPENID_THIS_WEBSITE_COOKIE, "true");
-
-            //多學校、多角色權限判斷
-            //LoginMultiView(openId.User);
+            Util.SetCookie(Util.OPENID_THIS_WEBSITE_COOKIE, "true");
         }
-
     }
 
     public static void MuitlLogin()
@@ -43,12 +36,14 @@ public class LoginUtil
         }
         else
         {
-            Util.SetCookie(OPENID_THIS_WEBSITE_COOKIE, "true");
+            if (Util.GetCookie(Util.OPENID_SELECT_USER_COOKIE) == string.Empty)
+            {
+                Util.SetCookie(Util.OPENID_THIS_WEBSITE_COOKIE, "true");
 
-            //多學校、多角色權限判斷
-            //LoginMultiView(openId.User);
+                //多學校、多角色權限判斷            
+                LoginMultiView(openId.User);
+            }            
         }
-
     }
 
     public static void Logout()
@@ -56,32 +51,25 @@ public class LoginUtil
         NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
         openId.Logout();
 
-        Util.CleanCookie(OPENID_THIS_WEBSITE_COOKIE);
+        Util.CleanCookie(Util.OPENID_THIS_WEBSITE_COOKIE);
+        Util.CleanCookie(Util.OPENID_SELECT_USER_COOKIE);
     }
 
     private static void LoginMultiView(NTPCLibrary.User openIdUser)
     {
-        //Page page = (Page)HttpContext.Current.Handler;
-
-        ////是否有2間以上學校
-        //var isMultiSchool = openIdUser.Departments.Count() > 1;
-        ////是否同1間學校有2個以上職位
-        //var isMultiSchoolGroup = openIdUser.Departments.Where(s => s.Groups.Count() >= 2).ToList().Count() > 0;
-        //if (isMultiSchool || isMultiSchoolGroup)
-        //{
-        //    string rdpath = page.Request["rd"];
-        //    page.Response.Redirect("~/LoginMultiView.aspx?id=" + openIdUser.Username + "&rd=" + rdpath);
-        //}
-        //else
-        //{
-        //    //只有單一學校或群組
-        //    SetCookie(OPENID_SELECT_USER_COOKIE, openIdUser.Schools.FirstOrDefault().Identity);
-        //    SetCookie(NTPC_SCHOOL_GROUP_COOKIE, openIdUser.Schools.FirstOrDefault().Groups.FirstOrDefault());
-        //    SetCookie(NTPC_USER_COOKIE, openIdUser.Username);
-
-        //    //1.validPage指定rd  2.在此導至rd
-        //    string rdpath = page.Request["rd"] ?? "~/Default.aspx";
-        //    page.Response.Redirect(rdpath);
-        //}
+        //是否有2間以上學校
+        var isMultiSchool = openIdUser.Departments.Count() > 1;
+        //是否同1間學校有2個以上職稱
+        var isMultiSchoolGroup = openIdUser.Departments.Where(s => s.Groups.Count() >= 2).ToList().Count() > 0;
+        if (isMultiSchool || isMultiSchoolGroup)
+        {
+            string rdpath = System.IO.Path.GetFileName(HttpContext.Current.Server.MapPath(HttpContext.Current.Request.Url.AbsolutePath));
+            HttpContext.Current.Response.Redirect("~/LoginMultiView.aspx?id=" + openIdUser.Identity + "&rd=" + rdpath);
+        }
+        else
+        {
+            //只有單一學校或職稱
+            Util.SetCookie<User>(Util.OPENID_SELECT_USER_COOKIE, openIdUser);
+        }
     }    
 }

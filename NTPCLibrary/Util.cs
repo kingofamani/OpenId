@@ -10,6 +10,9 @@ namespace NTPCLibrary
 {
     public static class Util
     {
+        public static string OPENID_THIS_WEBSITE_COOKIE = "openidThisWebSite";//是否已在本網站登入過
+        public static string OPENID_SELECT_USER_COOKIE = "openidSelectUser";//選取的登入職稱
+
         public static void CleanCookie(string cookieName)
         {
             HttpCookie cookie = new HttpCookie(cookieName);

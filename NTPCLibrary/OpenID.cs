@@ -156,7 +156,7 @@ namespace NTPCLibrary
                     User.BirthDate = claimResponse.BirthDate;
                     User.SchoolName = claimResponse.Country;
                     User.ClassRoom = claimResponse.Language;
-                    User.Departments = JsonConvert.DeserializeObject<IEnumerable<Department>>(claimResponse.TimeZone);
+                    User.Departments = JsonConvert.DeserializeObject<List<Department>>(claimResponse.TimeZone);
                 }
 
                 //延伸

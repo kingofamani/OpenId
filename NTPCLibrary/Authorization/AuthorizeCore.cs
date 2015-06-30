@@ -138,6 +138,128 @@ namespace NTPCLibrary
         }
 
         /// <summary>
+        /// OpenID基本多學校職稱[選取]授權判斷：OpenID登入後，可選擇[其一]學校職稱，並只針對所選取得學校職稱做授權判斷
+        /// 
+        /// <para>優點：可依使用者登入時選取的單一角色群組來判斷</para>
+        /// <para>缺點：從COOKIE來判斷[與LoginMultiView耦合]</para>
+        /// </summary>
+        /// <param name="page">目前的Page，加入this即可</param>
+        public static bool IsMultiAuthorized(object page)
+        {
+            User SelectUser = Util.GetCookie<User>(Util.OPENID_SELECT_USER_COOKIE);
+            OpenID openId = new OpenID();
+
+            bool isAuth = true;
+            string Users = string.Empty;
+            string Roles = string.Empty;
+            string Schools = string.Empty;
+
+            //取得Users、Roles、Schools
+            AuthorizeAttribute auth = null;
+            var attrs = page.GetType().GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
+            foreach (var attribute in attrs)
+            {
+                if (attribute is AuthorizeAttribute)
+                {
+                    auth = attribute as AuthorizeAttribute;
+
+                    Users = TrimAll(auth.Users);
+
+                    Roles = TrimAll(auth.Roles);
+
+                    Schools = TrimAll(auth.Schools);
+                }
+            }
+
+            //●1.基本OpenID驗證：只傳[Authorize]
+            if (auth != null && Users == string.Empty && Roles == string.Empty)
+            {
+                if (!openId.IsAuthenticated)
+                {
+                    return false;
+                }
+            }
+
+            //●2.Users驗證：傳[Authorize(Users:"使用者帳號")]
+            if (Users != string.Empty)
+            {
+                if (openId.IsAuthenticated)
+                {
+                    string[] usersArray = Users.Split(',');
+
+                    if (usersArray.Contains(SelectUser.Identity))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        isAuth = false;
+                    }
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+
+            //●3.Roles驗證：傳[Authorize(Roles:"角色名稱")]
+            if (Roles != string.Empty)
+            {
+                if (openId.IsAuthenticated)
+                {
+                    string[] rolesArray = Roles.Split(',');
+
+                    if (SelectUser.Departments.Where(s => rolesArray.Intersect(s.Groups).Count() > 0).Count() > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        isAuth = false;
+                    }
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+
+            //●4.Schools驗證：傳[Authorize(Schools:"學校代碼")]
+            if (Schools != string.Empty)
+            {
+                if (openId.IsAuthenticated)
+                {
+                    string[] schoolsArray = Schools.Split(',');
+
+                    if (SelectUser.Departments.Where(s => schoolsArray.Contains(s.ID)).Count() > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        isAuth = false;
+                    }
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+
+            //●5.若以上沒有任何一個權限被滿足，就是無訪問權限
+            if (!isAuth)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+
+        /// <summary>
         /// 從COOKIE來判斷[與LoginUtil、LoginMultiView耦合]
         /// <para>額外擴充Roles，從COOKIE讀取</para>
         /// <para>優點：可依使用者登入時選取的單一角色群組來判斷</para>

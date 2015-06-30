@@ -15,6 +15,7 @@
     <asp:Button runat="server" Text="登出" ID="btnLogout" OnClick="btnLogout_Click"/>
 
     <a href="Sample01.aspx">Sample01</a>
+    <a href="Sample02.aspx">Sample02</a>
     </div>
     </form>
 </body>

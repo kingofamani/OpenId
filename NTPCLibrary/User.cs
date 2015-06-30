@@ -20,7 +20,7 @@ namespace NTPCLibrary
         public string  ClassRoom { get; set; }//年級班級座號
         public string SchoolName { get; set; }//學校名稱
         public DateTime? BirthDate { get; set; }//生日
-        public IEnumerable<Department> Departments { get; set; }//服務單位
+        public List<Department> Departments { get; set; }//服務單位
         public string Gender { get; set; }//性別
         public string AXExtension { get; set; }//延伸資料
         //public string Message { get; set; }//訊息
