@@ -6,13 +6,14 @@ using DotNetOpenAuth.OpenId.Extensions.SimpleRegistration;
 using DotNetOpenAuth.OpenId.Extensions.AttributeExchange;
 using System.Web;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace NTPCLibrary
 {
     public class OpenID
     {
         public const string OPENID_COOKIE = "openid";
-
+        
         private IAuthenticationResponse response;
         /// <summary>
         /// 預設連接新北市OpenId Url
@@ -20,9 +21,24 @@ namespace NTPCLibrary
         /// </summary>
         public OpenID()
         {
+            //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
+            //{
+            //    sw.WriteLine(DateTime.Now.ToString() + "\rOpenID()");
+            //}
+
             Url = "http://openid.ntpc.edu.tw";
-            
-            //IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+
+            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+
+            if (response != null && response.Status == AuthenticationStatus.Authenticated)
+            {
+                using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
+                {
+                    sw.WriteLine(DateTime.Now.ToString() + "\rOpenID() response != null");
+                }
+
+                IsAuthenticated = true;
+            }
 
             if (GetCookie(OPENID_COOKIE) != string.Empty)
             {
@@ -40,7 +56,7 @@ namespace NTPCLibrary
         {
             Url = url;
 
-            //IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
 
             if (GetCookie(OPENID_COOKIE) != string.Empty)
             {
@@ -71,7 +87,8 @@ namespace NTPCLibrary
 
         public bool IsAuthenticated
         {
-            get { return GetCookie(OPENID_COOKIE) != string.Empty; }
+            get;
+            set;
         }
 
         public string LoginUrl
@@ -110,6 +127,11 @@ namespace NTPCLibrary
 
             if (response == null)
             {
+                //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
+                //{
+                //    sw.WriteLine(DateTime.Now.ToString() + "\rLogin() null");
+                //}
+
                 var request = new OpenIdRelyingParty().CreateRequest(Url);
 
                 request.AddExtension
@@ -130,7 +152,13 @@ namespace NTPCLibrary
                 request.RedirectToProvider();
 
             } else if (response != null && response.Status == AuthenticationStatus.Authenticated)
-            {                
+            {
+                //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
+                //{
+                //    sw.WriteLine(DateTime.Now.ToString() + "\rLogin() not null");
+                //}
+
+                IsAuthenticated = true;
                 //基本
                 var claimResponse = response.GetExtension<ClaimsResponse>();
 
@@ -151,7 +179,7 @@ namespace NTPCLibrary
 
                 User.AXExtension = fetchResponse != null ? GetAx(fetchResponse) : "無";
 
-                //寫入Cookie
+                //寫入Cookie                
                 SetCookie(OPENID_COOKIE, JsonConvert.SerializeObject(User));
 
             }
@@ -187,7 +215,7 @@ namespace NTPCLibrary
             cookie.Value = HttpUtility.UrlEncode(value);
             HttpContext.Current.Response.Cookies.Add(cookie);
         }
-
+        
         private string GetCookie(string cookieName)
         {
             if (HttpContext.Current.Request.Cookies[cookieName] != null)

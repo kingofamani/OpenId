@@ -1,6 +1,7 @@
 ﻿using NTPCLibrary;
 using System;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.UI;
 
 /// <summary>
@@ -13,29 +14,46 @@ public class OpenIdValidPge :System.Web.UI.Page
     NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
 	public OpenIdValidPge()
 	{
-        //授權Authorization (OpenID登入後才檢查)
-        if (!AuthorizeCore.IsAuthorized(this))
+        //先)認證Authentication：判斷是否OpenID登入
+        LoginUtil.Login();
+        if (openId.IsAuthenticated)
         {
-            //無權限處理(以下請自行修改)
-            HttpContext.Current.Response.Redirect("Default.aspx");
+            LoginUser = openId.User;
         }
 	}
 
     protected void Page_Init(object sender, EventArgs e)
     {
-        //判斷是否Open ID登入
-        if (!openId.IsAuthenticated)
+        //後)授權Authorization
+        //1)第一次OpenID登入，由於抓不到OPENID_COOKIE
+        if (HttpContext.Current.Request["dnoa.userSuppliedIdentifier"] == "http://openid.ntpc.edu.tw")
         {
-            LoginUtil.Login();
+            //在此抓不到GetCookie(OPENID_COOKIE)，要用openId.Login()再Set一次OPENID_COOKIE；然後讓2)可以直接用openId.IsAuthenticated驗證
+            openId.Login();
+
+            //去掉dnoa.userSuppliedIdentifier
+            string rdpath = System.IO.Path.GetFileName(HttpContext.Current.Server.MapPath(HttpContext.Current.Request.Url.AbsolutePath));
+            HttpContext.Current.Response.Redirect(rdpath);
+        }
+        //2)已登入OpenID，抓得到OPENID_COOKIE，直接用openId.IsAuthenticated驗證
+        if (!AuthorizeCore.IsAuthorized(this) && openId.IsAuthenticated)
+        {
+            //無權限處理↓↓↓↓以下請自行修改↓↓↓↓
+            //HttpContext.Current.Response.Redirect("/Default.aspx");
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "alertreturn", "location.href='/Default.aspx';alert('您沒有權限！');", true);
+        }  
+    }
+
+    private string GetCookie(string cookieName)
+    {
+        if (HttpContext.Current.Request.Cookies[cookieName] != null)
+        {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies[cookieName];
+            return HttpUtility.UrlDecode(cookie.Value);
         }
         else
         {
-            LoginUser = openId.User;
+            return string.Empty;
         }
-    }
-
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        
     }
 }
