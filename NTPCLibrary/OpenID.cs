@@ -23,16 +23,16 @@ namespace NTPCLibrary
         {
             Url = "http://openid.ntpc.edu.tw";
 
-            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+            IsAuthenticated = Util.GetCookie(OPENID_COOKIE) != string.Empty;
 
             if (response != null && response.Status == AuthenticationStatus.Authenticated)
             {
                 IsAuthenticated = true;
             }
 
-            if (GetCookie(OPENID_COOKIE) != string.Empty)
+            if (Util.GetCookie(OPENID_COOKIE) != string.Empty)
             {
-                User = JsonConvert.DeserializeObject<User>(GetCookie(OPENID_COOKIE));
+                User = Util.GetCookie<User>(OPENID_COOKIE);
             }            
         }
         /// <summary>
@@ -46,11 +46,11 @@ namespace NTPCLibrary
         {
             Url = url;
 
-            IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
+            IsAuthenticated = Util.GetCookie(OPENID_COOKIE) != string.Empty;
 
-            if (GetCookie(OPENID_COOKIE) != string.Empty)
+            if (Util.GetCookie(OPENID_COOKIE) != string.Empty)
             {
-                User = JsonConvert.DeserializeObject<User>(GetCookie(OPENID_COOKIE));
+                User = Util.GetCookie<User>(OPENID_COOKIE);
             }  
         }
 
@@ -165,7 +165,7 @@ namespace NTPCLibrary
                 User.AXExtension = fetchResponse != null ? GetAx(fetchResponse) : "無";
 
                 //寫入Cookie                
-                SetCookie(OPENID_COOKIE, JsonConvert.SerializeObject(User));
+                Util.SetCookie<User>(OPENID_COOKIE, User);
 
             }
 
@@ -173,7 +173,7 @@ namespace NTPCLibrary
 
         public void Logout()
         {
-            CleanCookie(OPENID_COOKIE);
+            Util.CleanCookie(OPENID_COOKIE);
         }
 
         private string GetAx(DotNetOpenAuth.OpenId.Extensions.AttributeExchange.FetchResponse fetchrespone)
@@ -186,32 +186,6 @@ namespace NTPCLibrary
             }
             return sb.ToString();
         }
-
-        private void CleanCookie(string cookieName)
-        {
-            HttpCookie cookie = new HttpCookie(cookieName);
-            cookie.Expires = DateTime.Now.AddDays(-1d);
-            HttpContext.Current.Response.Cookies.Add(cookie);
-        }
-
-        private void SetCookie(string cookieName, string value)
-        {
-            HttpCookie cookie = new HttpCookie(cookieName);
-            cookie.Value = HttpUtility.UrlEncode(value);
-            HttpContext.Current.Response.Cookies.Add(cookie);
-        }
-        
-        private string GetCookie(string cookieName)
-        {
-            if (HttpContext.Current.Request.Cookies[cookieName] != null)
-            {
-                HttpCookie cookie = HttpContext.Current.Request.Cookies[cookieName];
-                return HttpUtility.UrlDecode(cookie.Value);
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
+                
     }
 }
