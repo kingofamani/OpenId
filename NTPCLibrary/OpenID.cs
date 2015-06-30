@@ -21,22 +21,12 @@ namespace NTPCLibrary
         /// </summary>
         public OpenID()
         {
-            //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
-            //{
-            //    sw.WriteLine(DateTime.Now.ToString() + "\rOpenID()");
-            //}
-
             Url = "http://openid.ntpc.edu.tw";
 
             IsAuthenticated = GetCookie(OPENID_COOKIE) != string.Empty;
 
             if (response != null && response.Status == AuthenticationStatus.Authenticated)
             {
-                using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
-                {
-                    sw.WriteLine(DateTime.Now.ToString() + "\rOpenID() response != null");
-                }
-
                 IsAuthenticated = true;
             }
 
@@ -127,11 +117,6 @@ namespace NTPCLibrary
 
             if (response == null)
             {
-                //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
-                //{
-                //    sw.WriteLine(DateTime.Now.ToString() + "\rLogin() null");
-                //}
-
                 var request = new OpenIdRelyingParty().CreateRequest(Url);
 
                 request.AddExtension
@@ -153,26 +138,26 @@ namespace NTPCLibrary
 
             } else if (response != null && response.Status == AuthenticationStatus.Authenticated)
             {
-                //using (System.IO.StreamWriter sw = new System.IO.StreamWriter("D:\\test.txt", true))
-                //{
-                //    sw.WriteLine(DateTime.Now.ToString() + "\rLogin() not null");
-                //}
-
                 IsAuthenticated = true;
                 //基本
                 var claimResponse = response.GetExtension<ClaimsResponse>();
 
                 User = new NTPCLibrary.User();
                 User.Identity = response.ClaimedIdentifier.ToString().Split('/').Last();
-                User.ID = claimResponse.PostalCode;
-                User.FullName = claimResponse.FullName;
-                User.NickName = claimResponse.Nickname;
-                User.Email = claimResponse.Email;
-                User.Gender = claimResponse!=null?(claimResponse.Gender.Equals(Gender.Male) ? "男" : "女"):string.Empty;
-                User.BirthDate = claimResponse.BirthDate;
-                User.SchoolName = claimResponse.Country;
-                User.ClassRoom = claimResponse.Language;
-                User.Departments = JsonConvert.DeserializeObject<IEnumerable<Department>>(claimResponse.TimeZone);
+
+                User.Departments = new List<Department>();
+                if (claimResponse != null)
+                {
+                    User.ID = claimResponse.PostalCode;
+                    User.FullName = claimResponse.FullName;
+                    User.NickName = claimResponse.Nickname;
+                    User.Email = claimResponse.Email;
+                    User.Gender = claimResponse != null ? (claimResponse.Gender.Equals(Gender.Male) ? "男" : "女") : string.Empty;
+                    User.BirthDate = claimResponse.BirthDate;
+                    User.SchoolName = claimResponse.Country;
+                    User.ClassRoom = claimResponse.Language;
+                    User.Departments = JsonConvert.DeserializeObject<IEnumerable<Department>>(claimResponse.TimeZone);
+                }
 
                 //延伸
                 FetchResponse fetchResponse = response.GetExtension<FetchResponse>();

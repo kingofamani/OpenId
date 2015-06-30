@@ -26,7 +26,7 @@ public class OpenIdValidPge :System.Web.UI.Page
     {
         //後)授權Authorization
         //1)第一次OpenID登入，由於抓不到OPENID_COOKIE
-        if (HttpContext.Current.Request["dnoa.userSuppliedIdentifier"] == "http://openid.ntpc.edu.tw")
+        if (HttpContext.Current.Request["dnoa.userSuppliedIdentifier"] == openId.Url)
         {
             //在此抓不到GetCookie(OPENID_COOKIE)，要用openId.Login()再Set一次OPENID_COOKIE；然後讓2)可以直接用openId.IsAuthenticated驗證
             openId.Login();
@@ -44,16 +44,5 @@ public class OpenIdValidPge :System.Web.UI.Page
         }  
     }
 
-    private string GetCookie(string cookieName)
-    {
-        if (HttpContext.Current.Request.Cookies[cookieName] != null)
-        {
-            HttpCookie cookie = HttpContext.Current.Request.Cookies[cookieName];
-            return HttpUtility.UrlDecode(cookie.Value);
-        }
-        else
-        {
-            return string.Empty;
-        }
-    }
+    
 }
