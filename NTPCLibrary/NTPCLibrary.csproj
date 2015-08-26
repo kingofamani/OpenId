@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -50,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Authorization\AuthorizeAttribute.cs" />
     <Compile Include="Authorization\AuthorizeCore.cs" />
+    <Compile Include="Authorization\AuthorizeExtensionAttribute.cs" />
     <Compile Include="Department.cs" />
     <Compile Include="LoginUtil.cs" />
     <Compile Include="OpenID.cs" />

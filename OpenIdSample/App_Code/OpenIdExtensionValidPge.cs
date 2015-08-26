@@ -1,21 +1,21 @@
 ﻿using NTPCLibrary;
 using System;
 using System.Web;
-using System.Web.Hosting;
-using System.Web.UI;
 
 /// <summary>
-/// OpenIdValidPge 的摘要描述
+/// OpenIdExtensionValidPge
 /// </summary>
-//[Authorize(Schools = "014792")]//可繼承
-public class OpenIdMultiValidPge :System.Web.UI.Page
+public class OpenIdExtensionValidPge : System.Web.UI.Page
 {
+    //資料庫↓↓↓↓請自行修改↓↓↓↓
+    TESTDBDataContext ctx = new TESTDBDataContext();
+
     public NTPCLibrary.User LoginUser = null;
     NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
-    public OpenIdMultiValidPge()
+    public OpenIdExtensionValidPge()
 	{
         //先)認證Authentication：判斷是否OpenID登入
-        LoginUtil.MultiLogin();
+        LoginUtil.ExtensionLogin(ctx);
         if (openId.IsAuthenticated)
         {
             LoginUser = openId.User;
@@ -36,13 +36,11 @@ public class OpenIdMultiValidPge :System.Web.UI.Page
             HttpContext.Current.Response.Redirect(rdpath);
         }
         //2)已登入OpenID，抓得到OPENID_COOKIE，直接用openId.IsAuthenticated驗證
-        if (!AuthorizeCore.IsMultiAuthorized(this) && openId.IsAuthenticated)
+        if (!AuthorizeCore.IsMultiExtensionAuthorized(this) && openId.IsAuthenticated)
         {
             //無權限處理↓↓↓↓以下請自行修改↓↓↓↓
             //HttpContext.Current.Response.Redirect("/Default.aspx");
-            Page.ClientScript.RegisterStartupScript(this.GetType(), "alertreturn", "alert('您沒有Select權限！');", true);
-        }  
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "alertreturn", "alert('您沒有擴充權限！');", true);
+        }
     }
-
-    
 }

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using NTPCLibrary;
+﻿using NTPCLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +6,18 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class LoginMultiView : System.Web.UI.Page
+public partial class LoginExtensionView : System.Web.UI.Page
 {
+    //資料庫↓↓↓↓請自行修改↓↓↓↓
+    TESTDBDataContext ctx = new TESTDBDataContext();
+
     public NTPCLibrary.User LoginUser = null;
     NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
 
     string user_identity = string.Empty;
     string rd = string.Empty;
 
-    public LoginMultiView()
+    public LoginExtensionView()
     {
         if (openId.IsAuthenticated)
         {
@@ -32,6 +34,7 @@ public partial class LoginMultiView : System.Web.UI.Page
         {
             if (user_identity != string.Empty)
             {
+                //一般User
                 lblUserName.Text = LoginUser.FullName;
 
                 List<TempDepartment> departments = new List<TempDepartment>();
@@ -48,11 +51,24 @@ public partial class LoginMultiView : System.Web.UI.Page
                 }
                 ListView1.DataSource = departments;
                 ListView1.DataBind();
+
+                //管理端                
+                List<RoleUser> rus = ctx.RoleUser.Where(r => r.user_id == LoginUser.Identity).OrderBy(r => r.role_id).ToList();
+
+                if (rus.Count != 0)
+                {
+                    ListView2.DataSource = rus;
+                    ListView2.DataBind();
+                }
+                else
+                {
+                    lblManagerTitle.Visible = false;
+                }
             }
         }
-
     }
 
+    //一般登入
     protected void ListView1_ItemCommand(object sender, ListViewCommandEventArgs e)
     {
         if (e.CommandName == "login")
@@ -74,6 +90,28 @@ public partial class LoginMultiView : System.Web.UI.Page
             user.Departments = departments;
             //設user cookie
             Util.SetCookie<NTPCLibrary.User>(Util.OPENID_SELECT_USER_COOKIE, user);
+
+            //清除role cookie
+            //Util.CleanCookie(Util.OPENID_ROLE_COOKIE);
+            Util.SetCookie(Util.OPENID_ROLE_COOKIE, "0");
+
+            //重導
+            Response.Redirect(rd);
+
+            
+        }
+    }
+
+    //擴充登入
+    protected void ListView2_ItemCommand(object sender, ListViewCommandEventArgs e)
+    {
+        if (e.CommandName == "login")
+        {
+            //設role_id cookie
+            Util.SetCookie(Util.OPENID_ROLE_COOKIE, e.CommandArgument.ToString());
+
+            //清除openidSelectUser cookie
+            Util.CleanCookie(Util.OPENID_SELECT_USER_COOKIE);
 
             //重導
             Response.Redirect(rd);

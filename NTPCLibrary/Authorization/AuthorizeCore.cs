@@ -260,90 +260,127 @@ namespace NTPCLibrary
         }
 
         /// <summary>
-        /// 從COOKIE來判斷[與LoginUtil、LoginMultiView耦合]
+        /// 從COOKIE來判斷[與Util、LoginMultiViewExtension耦合]
         /// <para>額外擴充Roles，從COOKIE讀取</para>
-        /// <para>優點：可依使用者登入時選取的單一角色群組來判斷</para>
+        /// <para>優點：可擴充OpenID沒有的群組權限</para>
         /// <para>缺點：需耦合資料庫</para>
-        /// <para>備註：由於廠商非SSO登入，因此不從資料庫中的RoleUser讀取</para>
         /// </summary>
         /// <param name="page">目前的Page，加入this即可</param>
-        //public static void IsExtensionAuthorized(object page)
-        //{
-        //    bool isAuth = true;
-        //    string Roles = string.Empty;
+        public static bool IsExtensionAuthorized(object page)
+        {
+            OpenID openId = new OpenID();
 
-        //    //取得Roles
-        //    NtpcAuthorizeExtensionAttribute auth = null;
-        //    var attrs = page.GetType().GetCustomAttributes(typeof(NtpcAuthorizeExtensionAttribute), true);
+            bool isAuth = true;
+            string Roles = string.Empty;
 
-        //    foreach (var attribute in attrs)
-        //    {
-        //        if (attribute is NtpcAuthorizeExtensionAttribute)
-        //        {
-        //            auth = attribute as NtpcAuthorizeExtensionAttribute;
+            //取得Roles
+            AuthorizeExtensionAttribute auth = null;
+            var attrs = page.GetType().GetCustomAttributes(typeof(AuthorizeExtensionAttribute), true);
 
-        //            Roles = TrimAll(auth.Roles);
-        //        }
-        //    }
+            foreach (var attribute in attrs)
+            {
+                if (attribute is AuthorizeExtensionAttribute)
+                {
+                    auth = attribute as AuthorizeExtensionAttribute;
 
-        //    //Roles驗證：傳[NtpcAuthorizeExtension(Roles:"角色名稱")]
-        //    if (Roles != string.Empty)
-        //    {
-        //        string[] rolesArray = Roles.Split(',');
+                    Roles = TrimAll(auth.Roles);
+                }
+            }
 
-        //        //1)自訂擴充角色(資料庫RoleUser)
-        //        int role_id = LoginUtil.GetCookie(LoginUtil.NTPC_ROLE_COOKIE) != string.Empty ? Convert.ToInt16(LoginUtil.GetCookie(LoginUtil.NTPC_ROLE_COOKIE)) : 0;
+            //Roles驗證：傳[AuthorizeExtension(Roles:"角色名稱")]
+            if (Roles != string.Empty)
+            {
+                if (openId.IsAuthenticated)
+                {
+                    string[] rolesArray = Roles.Split(',');
 
-        //        if (role_id != 0)
-        //        {
-        //            if (rolesArray.Contains(Global.角色名稱((Global.角色權限)role_id)))
-        //            {
-        //                return;// true;
-        //            }
-        //            else
-        //            {
-        //                isAuth = false;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            isAuth = false;
-        //        }
+                    //1)自訂擴充角色(資料庫RoleUser)
+                    int role_id = Util.GetCookie(Util.OPENID_ROLE_COOKIE) != string.Empty ? Convert.ToInt16(Util.GetCookie(Util.OPENID_ROLE_COOKIE)) : 0;
 
-        //        //2)SSO基本角色
-        //        string group = LoginUtil.GetNtpcCookie(LoginUtil.NTPC_SCHOOL_GROUP_COOKIE);
+                    if (role_id != 0)
+                    {
+                        if (rolesArray.Contains(Util.角色名稱((Util.角色權限)role_id)))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            isAuth = false;
+                        }
+                    }
+                    else
+                    {
+                        isAuth = false;
+                    }
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+            else
+            {
+                return true;
+            }
 
-        //        if (group != string.Empty)
-        //        {
-        //            if (rolesArray.Contains(group))
-        //            {
-        //                return;// true;
-        //            }
-        //            else
-        //            {
-        //                isAuth = false;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            isAuth = false;
-        //        }
+            //若以上沒有任何一個權限被滿足，就是無訪問權限
+            if (!isAuth)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
 
-        //    }
-        //    else
-        //    {
-        //        return;//true;
-        //    }
+        }
 
-        //    //若以上沒有任何一個權限被滿足，就是無訪問權限
-        //    if (!isAuth)
-        //    {
-        //        //return false;
-        //        HttpContext.Current.Response.Redirect("Error.aspx?msg=沒有擴充(Extension)角色訪問權限&rd=Default.aspx");
-        //    }
 
-        //}
+        public static bool IsMultiExtensionAuthorized(object page)
+        {
+            bool isAuth = true;
 
+            //1)OpenID基本多學校職稱[選取]授權判斷
+            bool IsOpenidSelectUser = Util.GetCookie<User>(Util.OPENID_SELECT_USER_COOKIE) != default(User);
+            if (IsOpenidSelectUser)
+            {
+                bool IsMulti = IsMultiAuthorized(page);
+                if (IsMulti)
+                {
+                    return true;
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+
+            //2)擴充權限
+            bool IsOpenIdRole = !((string.IsNullOrEmpty(Util.GetCookie(Util.OPENID_ROLE_COOKIE))) || (Util.GetCookie(Util.OPENID_ROLE_COOKIE) == "0"));
+            if (IsOpenIdRole)
+            {
+                bool IsExtension = IsExtensionAuthorized(page);
+                if (IsExtension)
+                {
+                    return true;
+                }
+                else
+                {
+                    isAuth = false;
+                }
+            }
+
+            //若以上沒有任何一個權限被滿足，就是無訪問權限
+            if (!isAuth)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        
         private static string TrimAll(string str)
         {
             if (str != null)

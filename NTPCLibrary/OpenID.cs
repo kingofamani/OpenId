@@ -22,6 +22,7 @@ namespace NTPCLibrary
         public OpenID()
         {
             Url = "http://openid.ntpc.edu.tw";
+            CookieDomain = UrlToDomain(Url);            
 
             IsAuthenticated = Util.GetCookie(OPENID_COOKIE) != string.Empty;
 
@@ -35,6 +36,7 @@ namespace NTPCLibrary
                 User = Util.GetCookie<User>(OPENID_COOKIE);
             }            
         }
+        
         /// <summary>
         /// 自訂其他縣市OpenId Url
         /// <para>用法：</para>
@@ -45,6 +47,7 @@ namespace NTPCLibrary
         public OpenID(string url)
         {
             Url = url;
+            CookieDomain = UrlToDomain(Url); 
 
             IsAuthenticated = Util.GetCookie(OPENID_COOKIE) != string.Empty;
 
@@ -55,10 +58,7 @@ namespace NTPCLibrary
         }
 
         public string Url { get; set; }
-        public string CookieDomain
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public string CookieDomain{ get; set; }
 
         public string CookieName
         {
@@ -165,15 +165,31 @@ namespace NTPCLibrary
                 User.AXExtension = fetchResponse != null ? GetAx(fetchResponse) : "無";
 
                 //寫入Cookie                
-                Util.SetCookie<User>(OPENID_COOKIE, User);
-
+                Util.SetCookie<User>(OPENID_COOKIE, User, CookieDomain, true);
             }
 
         }
 
         public void Logout()
         {
-            Util.CleanCookie(OPENID_COOKIE);
+            //OPENID_COOKIE的Domain是.ntpc.edu.tw，所以要刪2次
+            HttpCookie cookie = new HttpCookie(OPENID_COOKIE, "");
+            cookie.HttpOnly = true;
+            cookie.Expires = DateTime.Now.AddYears(-1); 
+
+            if (string.IsNullOrEmpty(HttpContext.Current.Request.QueryString["domain"]))
+            {
+                string rdpath = System.IO.Path.GetFileName(HttpContext.Current.Server.MapPath(HttpContext.Current.Request.Url.AbsolutePath));//找Logout.aspx
+
+                cookie.Domain = HttpContext.Current.Request.Url.Host;
+                HttpContext.Current.Response.SetCookie(cookie);
+                HttpContext.Current.Response.Redirect(rdpath+"?domain=1", true);
+            }
+            else
+            {
+                cookie.Domain = CookieDomain;
+                HttpContext.Current.Response.SetCookie(cookie);
+            }
         }
 
         private string GetAx(DotNetOpenAuth.OpenId.Extensions.AttributeExchange.FetchResponse fetchrespone)
@@ -185,6 +201,15 @@ namespace NTPCLibrary
                 sb.Append(attribs.TypeUri.Split('/').ToList().Last() + "..." + attribs.Values[0].ToString() + "...");
             }
             return sb.ToString();
+        }
+
+        private string UrlToDomain(string Url)
+        {
+            string domain = string.Empty;
+            string[] urls = Url.TrimEnd('/').Split('.');//{http://openid,ntpc,edu,tw}
+            string[] domainUrls = urls.Where(u => u != urls[0]).ToArray();//{ntpc,edu,tw}
+            domain = string.Join(".", domainUrls);//ntpc.edu.tw
+            return domain;
         }
                 
     }
