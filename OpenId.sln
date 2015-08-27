@@ -5,11 +5,11 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTPCLibrary", "NTPCLibrary\NTPCLibrary.csproj", "{90C65652-FFD6-494F-BA0C-8B66A3968A2B}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OpenIdSample(1)", "http://localhost:22016", "{AC2ECBC1-CE8A-4383-8504-E901A4283D6B}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OpenIdSample", "http://localhost:22016", "{AC2ECBC1-CE8A-4383-8504-E901A4283D6B}"
 	ProjectSection(WebsiteProperties) = preProject
 		UseIISExpress = "true"
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
-		ProjectReferences = "{90c65652-ffd6-494f-ba0c-8b66a3968a2b}|NTPCLibrary.dll;"
+		ProjectReferences = "{90c65652-ffd6-494f-ba0c-8b66a3968a2b}|NTPCLibrary.dll;{3e28d93d-a76b-424e-94c0-e227a178ee95}|MyDb.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_22016"
 		Debug.AspNetCompiler.PhysicalPath = "OpenIdSample\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_22016\"
@@ -28,6 +28,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OpenIdSample(1)", "http://l
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyDb", "MyDb\MyDb.csproj", "{3E28D93D-A76B-424E-94C0-E227A178EE95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{AC2ECBC1-CE8A-4383-8504-E901A4283D6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC2ECBC1-CE8A-4383-8504-E901A4283D6B}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{AC2ECBC1-CE8A-4383-8504-E901A4283D6B}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{3E28D93D-A76B-424E-94C0-E227A178EE95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E28D93D-A76B-424E-94C0-E227A178EE95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E28D93D-A76B-424E-94C0-E227A178EE95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E28D93D-A76B-424E-94C0-E227A178EE95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
-﻿using NTPCLibrary;
+﻿using MyDb;
+using NTPCLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,7 @@ using System.Web.UI.WebControls;
 
 public partial class LoginExtensionView : System.Web.UI.Page
 {
-    //資料庫↓↓↓↓請自行修改↓↓↓↓
-    TESTDBDataContext ctx = new TESTDBDataContext();
+    DataClassesDataContext ctx = new DataClassesDataContext();
 
     public NTPCLibrary.User LoginUser = null;
     NTPCLibrary.OpenID openId = new NTPCLibrary.OpenID();
