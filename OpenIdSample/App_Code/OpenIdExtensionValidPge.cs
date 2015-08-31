@@ -1,5 +1,6 @@
 ﻿using NTPCLibrary;
 using System;
+using System.Linq;
 using System.Data.Linq;
 using System.Web;
 using System.Web.Configuration;
@@ -17,7 +18,8 @@ public class OpenIdExtensionValidPge : System.Web.UI.Page
     public OpenIdExtensionValidPge()
 	{
         //先)認證Authentication：判斷是否OpenID登入
-        LoginUtil.ExtensionLogin(ctx);
+        string[] roleUser = ctx.RoleUser.Select(r => r.user_id).ToArray();
+        LoginUtil.ExtensionLogin(roleUser);
         if (openId.IsAuthenticated)
         {
             LoginUser = openId.User;
