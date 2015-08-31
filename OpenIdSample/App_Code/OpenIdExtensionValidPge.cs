@@ -1,9 +1,7 @@
 ﻿using NTPCLibrary;
 using System;
 using System.Linq;
-using System.Data.Linq;
 using System.Web;
-using System.Web.Configuration;
 using MyDb;
 
 /// <summary>

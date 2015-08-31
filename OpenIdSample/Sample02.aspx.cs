@@ -1,10 +1,6 @@
 ﻿using NTPCLibrary;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
 [Authorize(Roles = "資訊組長")] //授權Authorization
 public partial class Sample02 : OpenIdMultiValidPge //認證Authentication

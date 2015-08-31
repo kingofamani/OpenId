@@ -1,10 +1,6 @@
 ﻿using NTPCLibrary;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.UI;
-using System.Data.Linq;
 
 /// <summary>
 /// LoginUtil 的摘要描述

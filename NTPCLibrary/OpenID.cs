@@ -6,7 +6,6 @@ using DotNetOpenAuth.OpenId.Extensions.SimpleRegistration;
 using DotNetOpenAuth.OpenId.Extensions.AttributeExchange;
 using System.Web;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
 
 namespace NTPCLibrary
 {
