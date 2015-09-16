@@ -39,7 +39,7 @@ public class OpenIdValidPge :System.Web.UI.Page
         {
             //無權限處理↓↓↓↓以下請自行修改↓↓↓↓
             //HttpContext.Current.Response.Redirect("/Default.aspx");
-            Page.ClientScript.RegisterStartupScript(this.GetType(), "alertreturn", "location.href='/Default.aspx';alert('您沒有權限！');", true);
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "alertreturn", "location.href='Default.aspx';alert('您沒有權限！');", true);
         }  
     }
 
