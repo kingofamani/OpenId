@@ -2,7 +2,6 @@
 using System;
 using System.Web;
 
-//[Authorize(Users = "af3726")]
 [Authorize(Schools="019998")]
 [AuthorizeExtension(Roles = "管理者,教研網管組")] //授權Authorization
 public partial class Sample03 : OpenIdExtensionValidPge //認證Authentication

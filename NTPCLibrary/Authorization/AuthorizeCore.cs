@@ -257,10 +257,10 @@ namespace NTPCLibrary
         }
 
         /// <summary>
-        /// 從COOKIE來判斷[與Util、LoginMultiViewExtension耦合]
-        /// <para>額外擴充Roles，從COOKIE讀取</para>
-        /// <para>優點：可擴充OpenID沒有的群組權限</para>
-        /// <para>缺點：需耦合資料庫</para>
+        ///  OpenID擴充授權判斷：OpenID登入後，可額外擴充OpenID所沒有的角色。擴充角色是從資料庫RoleUser資料表讀取
+        /// <para></para>
+        /// <para>優點：可擴充OpenID沒有的Role角色權限。(額外擴充的Role角色要從COOKIE讀取)</para>
+        /// <para>缺點：需耦合資料庫、Util.cs、LoginMultiViewExtension.aspx</para>
         /// </summary>
         /// <param name="page">目前的Page，加入this即可</param>
         public static bool IsExtensionAuthorized(object page)
@@ -332,7 +332,11 @@ namespace NTPCLibrary
 
         }
 
-
+        /// <summary>
+        /// OpenID基本授權 + OpenID擴充授權
+        /// </summary>
+        /// <param name="page">目前的Page，加入this即可</param>
+        /// <returns></returns>
         public static bool IsMultiExtensionAuthorized(object page)
         {
             bool isAuth = true;

@@ -2,9 +2,8 @@
 using System;
 using NTPCLibrary;
 
-//[NtpcAuthorize]
-//[NtpcAuthorize(Users = "amani,test1234")]
-//[NtpcAuthorize(Roles= "資訊組長")]
+//[Authorize]
+//[Authorize(Users = "amani,test1234")]
 //[Authorize(Schools="014792")] 
 [Authorize(Roles = "資訊組長")] //授權Authorization
 public partial class Sample01 : OpenIdValidPge //認證Authentication
